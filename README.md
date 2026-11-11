@@ -120,7 +120,7 @@ You can also start from `notebooks/02_real_llm_colab.ipynb`.
 **Author:** Roshaan Ahmed Khan  
 **Status:** Preliminary, unreviewed working paper.
 
-[Read the PDF manuscript](manuscript/AAVF_Working_Paper_v1.0_Roshaan_Ahmed_Khan.pdf)
+[Read the PDF manuscript](aavf-tool-failure-pilot/manuscript/AAVF_Working_Paper_v1.0_Roshaan_Ahmed_Khan.pdf)
 
 Do not describe this version as a peer-reviewed paper, a verified original method, or an LLM-agent benchmark. A comparison with relevant 2025–2026 literature remains outstanding; see `docs/2025_2026_LITERATURE_AUDIT_TEMPLATE.csv`.
 
