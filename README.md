@@ -140,7 +140,7 @@ Do not describe this version as a peer-reviewed paper, a verified original metho
 
 This project is a **research prototype**. It does not establish production safety or generalize automatically to larger agents or complex real applications. Code and manuscript drafting received AI assistance; experimental claims should be independently checked by the researcher. Full study limitations are described in the working paper and `docs/RESEARCH_SCOPE.md`.
 
-Citation metadata is provided in [`CITATION.cff`](CITATION.cff). Please cite the **working-paper version** appropriately until a formally reviewed publication exists.
+Citation metadata is provided in [`CITATION.cff`](aavf-tool-failure-pilot/CITATION.cff). Please cite the **working-paper version** appropriately until a formally reviewed publication exists.
 
 **License:** No open-source license has yet been selected for this repository. An optional MIT license template is included in the release package. A public repository is not automatically open source: add a reviewed `LICENSE` file before granting reuse permissions. Manuscript rights may be different from code rights.
 
