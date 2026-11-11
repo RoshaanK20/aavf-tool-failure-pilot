@@ -22,7 +22,7 @@ Agents can interact with databases, APIs, and software tools, but an apparently 
 
 ## System overview
 
-![Pilot architecture](figures/pilot_architecture.png)
+![Pilot architecture](aavf-tool-failure-pilot/figures/pilot_architecture.png)
 
 The simulated workflow performs inventory-related reads and writes under injected faults. Every policy is evaluated on the same 1,600 generated scenarios. The evaluation checks final database state and task reporting, rather than accepting the workflow's own claim of success.
 
@@ -44,13 +44,13 @@ The simulated workflow performs inventory-related reads and writes under injecte
 | Verify all | 100.00% | 6.13 | 0 |
 | **Selective verification (AAVF)** | **85.13%** | **4.11** | **0** |
 
-![Task success rates](figures/simulation_success.png)
+![Task success rates](aavf-tool-failure-pilot/figures/simulation_success.png)
 
-![Verification overhead](figures/simulation_calls.png)
+![Verification overhead](aavf-tool-failure-pilot/figures/simulation_calls.png)
 
 **Interpretation:** In this simulation, selective verification improved success by **23 percentage points** over no checking and used approximately **33% fewer tool calls** than verifying every action. However, verify-all still achieved higher success. Its **100% result depends on a perfectly reliable, immediately consistent audit endpoint** built into the simulator. It is not evidence of perfect real-world agent reliability.
 
-The selective policy can miss some *plausible but incorrect* tool responses. Results depend on the simulated failure probabilities, decision rules, and task design. See [`results/summary.json`](results/summary.json) for the exact metrics and paired bootstrap comparisons.
+The selective policy can miss some *plausible but incorrect* tool responses. Results depend on the simulated failure probabilities, decision rules, and task design. See [`results/summary.json`](aavf-tool-failure-pilot/results/summary.json) for the exact metrics and paired bootstrap comparisons.
 
 ## Reproduce the simulation
 
