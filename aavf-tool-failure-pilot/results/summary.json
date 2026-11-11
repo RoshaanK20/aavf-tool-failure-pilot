@@ -1,0 +1,94 @@
+{
+  "study_type": "Controlled simulation of scripted tool-using policies; NO LLM evaluated",
+  "scenario_count": 1600,
+  "seed": 20261110,
+  "bootstrap_iterations": 3000,
+  "fault_probability_assumptions": {
+    "read_each": {
+      "none": 0.85,
+      "corrupt": 0.07,
+      "missing": 0.05,
+      "invalid": 0.03
+    },
+    "write": {
+      "none": 0.8,
+      "error": 0.05,
+      "timeout_pre": 0.05,
+      "timeout_post": 0.05,
+      "silent_drop": 0.05
+    }
+  },
+  "policies": {
+    "no_check": {
+      "success_rate": 0.62125,
+      "state_correct_rate": 0.86938,
+      "report_correct_rate": 0.70875,
+      "duplicate_count": 0,
+      "mean_tool_calls": 3.0,
+      "mean_extra_verification_calls": 0.0
+    },
+    "retry": {
+      "success_rate": 0.79,
+      "state_correct_rate": 0.9175,
+      "report_correct_rate": 0.85688,
+      "duplicate_count": 67,
+      "mean_tool_calls": 3.29875,
+      "mean_extra_verification_calls": 0.0
+    },
+    "verify_all": {
+      "success_rate": 1.0,
+      "state_correct_rate": 1.0,
+      "report_correct_rate": 1.0,
+      "duplicate_count": 0,
+      "mean_tool_calls": 6.13063,
+      "mean_extra_verification_calls": 3.0
+    },
+    "adaptive": {
+      "success_rate": 0.85125,
+      "state_correct_rate": 0.99187,
+      "report_correct_rate": 0.85688,
+      "duplicate_count": 0,
+      "mean_tool_calls": 4.11,
+      "mean_extra_verification_calls": 0.9875
+    }
+  },
+  "paired_success_difference_adaptive_minus_no_check": {
+    "diff": 0.23,
+    "low95": 0.21,
+    "high95": 0.25
+  },
+  "paired_success_difference_adaptive_minus_verify_all": {
+    "diff": -0.14875,
+    "low95": -0.16625,
+    "high95": -0.13187
+  },
+  "paired_call_difference_adaptive_minus_verify_all": {
+    "diff": -2.02062,
+    "low95": -2.0475,
+    "high95": -1.9925
+  },
+  "paired_duplicate_difference_retry_minus_adaptive": {
+    "diff": 0.04188,
+    "low95": 0.0325,
+    "high95": 0.05187
+  },
+  "write_faults": {
+    "none": 1324,
+    "silent_drop": 65,
+    "timeout_pre": 70,
+    "error": 74,
+    "timeout_post": 67
+  },
+  "read_stock_faults": {
+    "none": 1354,
+    "missing": 88,
+    "invalid": 45,
+    "corrupt": 113
+  },
+  "read_price_faults": {
+    "none": 1343,
+    "corrupt": 123,
+    "invalid": 52,
+    "missing": 82
+  }
+}

@@ -1,0 +1,4 @@
+matplotlib
+fastapi>=0.100
+uvicorn
+mcp

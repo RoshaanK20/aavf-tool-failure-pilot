@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this reproducible synthetic pilot, please cite the associated working paper and repository version."
+authors:
+  - family-names: Khan
+    given-names: Roshaan Ahmed
+title: "AAVF Tool-Failure Pilot: Reproducible Simulation and Working Paper"
+version: 1.0.0
+date-released: 2026-11-10
+type: software
+keywords:
+  - agentic AI
+  - tool failure
+  - risk-aware verification
+  - synthetic simulation

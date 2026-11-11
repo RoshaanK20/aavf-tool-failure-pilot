@@ -1,0 +1,4 @@
+# Install only for actual language model inference on Colab (GPU recommended):
+transformers>=4.45,<5
+accelerate
+safetensors
