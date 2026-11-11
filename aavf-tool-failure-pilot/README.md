@@ -1,71 +1,149 @@
-# AAVF Tool-Failure Pilot | Working Paper v1.0
+# AAVF: Adaptive Agent Verification Framework
 
-> **Research status: preliminary scripted-policy simulation.** This is **not an LLM-agent benchmark, a peer-reviewed publication, or proof of a novel method**. The repository is a reproducible research prototype.
+**A reproducible study of verification and recovery policies for tool-using agent workflows.**
 
-This pilot compares four tool-use verification policies under synthetic inventory tool errors: no additional checking, bounded retry, verify-all, and a fixed-rule selective verification controller. It simulates missing, invalid, and plausible-but-wrong reads, as well as ambiguous write outcomes.
+> **Research status:** Version 1.0 is an **unreviewed working paper** and a **controlled Python simulation**. The reported results do **not** come from an autonomous LLM agent, a public agent benchmark, or a real-world deployment. A real-LLM evaluation harness is included for future experiments, but no real-model results are included in the v1.0 findings.
 
-## Reproduce the experiment
+**Researcher:** Roshaan Ahmed Khan  
+**Affiliation:** BS Artificial Intelligence (BSAI), Sindh Madressatul Islam University, Pakistan  
+**Version:** v1.0 | Preliminary experimental release
 
-Requires Python 3.9+; the core simulator uses only Python's standard library. From the repository root:
+## Why this project?
+
+Agents can interact with databases, APIs, and software tools, but an apparently successful response does not always mean the operation worked. A response may be incomplete, outdated, silently corrupted, or missing after a state-changing operation. Retrying blindly can also create duplicate updates.
+
+**AAVF** explores whether a *fixed-rule, risk-aware selective verification policy* can offer a useful balance between task success and verification overhead. This first release compares it with three simple policies in a fully controlled simulation.
+
+## Research questions
+
+- Can selective checking improve task success when tool responses may fail or be misleading?
+- How much verification overhead can be avoided compared with checking every tool interaction?
+- Can reading the resulting state before retrying help prevent duplicate state-changing operations?
+
+## System overview
+
+![Pilot architecture](figures/pilot_architecture.png)
+
+The simulated workflow performs inventory-related reads and writes under injected faults. Every policy is evaluated on the same 1,600 generated scenarios. The evaluation checks final database state and task reporting, rather than accepting the workflow's own claim of success.
+
+### Policies compared
+
+1. **No check:** Continue without a dedicated verification step.
+2. **Naive retry:** Apply a bounded retry policy when an operation appears to fail.
+3. **Verify all:** Verify every eligible operation.
+4. **Selective verification (AAVF):** Apply fixed risk rules to decide when to check or recover.
+
+## Pilot results
+
+**1,600 matched synthetic scenarios; 4 policies; 6,400 policy outcomes.** Seed: `20261110`.
+
+| Policy | End-to-end task success | Mean tool calls | Duplicate updates |
+|---|---:|---:|---:|
+| No check | 62.13% | 3.00 | 0 |
+| Naive retry | 79.00% | 3.30 | 67 |
+| Verify all | 100.00% | 6.13 | 0 |
+| **Selective verification (AAVF)** | **85.13%** | **4.11** | **0** |
+
+![Task success rates](figures/simulation_success.png)
+
+![Verification overhead](figures/simulation_calls.png)
+
+**Interpretation:** In this simulation, selective verification improved success by **23 percentage points** over no checking and used approximately **33% fewer tool calls** than verifying every action. However, verify-all still achieved higher success. Its **100% result depends on a perfectly reliable, immediately consistent audit endpoint** built into the simulator. It is not evidence of perfect real-world agent reliability.
+
+The selective policy can miss some *plausible but incorrect* tool responses. Results depend on the simulated failure probabilities, decision rules, and task design. See [`results/summary.json`](results/summary.json) for the exact metrics and paired bootstrap comparisons.
+
+## Reproduce the simulation
+
+**Requirements:** Python 3.9+; the core experiment uses the standard library. Matplotlib is optional for regenerating figures.
 
 ```bash
-python -m unittest discover -s tests -p 'test_*.py' -v
+# Clone your repository after uploading it to GitHub, then enter its folder.
+# (Or unzip the public release package and open the repository folder.)
+
+python -m unittest discover -s tests -p "test_*.py" -v
 python run_experiment.py
 ```
 
-Saved outputs: `results/scenarios.jsonl`, `results/outcomes.csv`, `results/summary.json`; plots are generated if Matplotlib is installed (`pip install matplotlib`). The scenario generator uses seed `20261110`; the paired bootstrap uses 3,000 replicates.
+Optional plots:
 
-## Results from the controlled pilot
+```bash
+pip install matplotlib
+python run_experiment.py
+```
 
-| Policy | Success, both final state and report | Mean total tool calls | Duplicate updates |
-|---|---:|---:|---:|
-| No check | 62.125% | 3.00 | 0 |
-| Naive retry | 79.000% | 3.30 | 67 |
-| Verify every action | 100.000% | 6.13 | 0 |
-| Selective fixed-rule checks | 85.125% | 4.11 | 0 |
+Generated artifacts:
 
-**These figures come from an artificial benchmark, not deployed AI agents.** In this setup, verify-all benefits from a perfectly reliable, immediately consistent audit endpoint, explaining its 100% success. Selective verification leaves some plausible silent corruptions unresolved. The results are conditional on the chosen fault distribution, simulated tools, and rule thresholds.
+- `results/scenarios.jsonl` — reproducible synthetic scenarios
+- `results/outcomes.csv` — outcome of each policy on each scenario
+- `results/summary.json` — aggregate results and confidence intervals
+- `figures/` — architecture and plots
 
-## Repository contents
+The experiment uses 3,000 paired bootstrap resamples in its summary comparisons.
 
-- `src/aavf_sim.py`: deterministic simulation and four policy implementations
-- `run_experiment.py`: experiment runner, results export, bootstrap analysis, charts
-- `tests/test_aavf.py`: seven original automated tests
-- `results/`: scenario data, outcomes, and numerical summaries
-- `figures/`: simulation architecture and outcome charts
-- `notebooks/01_colab_pilot.ipynb`: notebook for running the ZIP in Colab
-- `adapters/`: optional FastAPI and MCP wrappers, **not used in reported results**
-- `docs/`: release checklist, reference notes, methodology and disclosure
+## Repository structure
 
-## Optional adapters
+```text
+aavf-tool-failure-pilot/
+├── README.md
+├── run_experiment.py
+├── run_llm_experiment.py       # extension; not used for v1 results
+├── src/
+│   ├── aavf_sim.py           # simulator and four policies
+│   ├── llm_agent_eval.py     # LLM-action evaluation harness
+│   └── hf_backend.py         # optional open-weight model backend
+├── tests/                    # 12 passing local tests
+├── notebooks/                # pilot and optional LLM Colab notebooks
+├── adapters/                 # optional FastAPI / MCP wrappers
+├── results/                  # simulated scenario data and outcomes
+├── figures/                  # research graphics
+├── manuscript/               # working paper PDF
+├── docs/                     # scope, release notes, literature checklist
+└── CITATION.cff
+```
 
-- FastAPI: `pip install fastapi uvicorn`, then `uvicorn adapters.fastapi_app:app` to serve `POST /simulate`. A smoke test passed with FastAPI installed; not part of the published numerical experiment.
-- MCP: `pip install mcp`, then `python adapters/mcp_server.py`. This optional adapter was **not executed or validated** in the research audit. Check the installed SDK version before use.
+## Optional real-LLM extension
 
-These adapters expose a scripted simulator. Neither one creates an LLM reasoning agent by itself.
+A separate harness allows an open-weight language model to select tool actions. To try this experiment in a GPU-capable environment such as Google Colab:
 
-## Citation and publication status
+```bash
+pip install -r requirements-llm.txt
+python run_llm_experiment.py --n 12 --model Qwen/Qwen2.5-1.5B-Instruct
+```
 
-This repository accompanies a **preliminary simulation manuscript**. The author and affiliation are filled in; current related-work completeness (2025–2026), originality, licensing and release permissions still require researcher review. See `docs/RELEASE_CHECKLIST.md`. Do not cite it as a peer-reviewed publication. Add a stable manuscript URL and citation metadata only after a version is published.
+You can also start from `notebooks/02_real_llm_colab.ipynb`.
 
-## License and provenance
+**Important:** This command requires model downloads and sufficient RAM/VRAM; it has **not** been used to produce the v1.0 paper results. The 12 automated tests use the simulator and a mock model where needed. The optional FastAPI and MCP adapters also are **not part of the reported experiment**, and the MCP adapter has not been validated in the release audit.
 
-A license has deliberately **not** been selected on behalf of the researcher. Before publishing, decide which permissions to grant and add a `LICENSE` file (MIT is one common permissive choice for code; a manuscript may need a different license or rights arrangement). Until a license is added, public visibility does not automatically grant reuse rights.
+## Working paper
 
-Code and text were prepared with AI assistance. Review the code, inspect all results, follow your institution's AI-use requirements, and preserve a traceable experimental record.
+**Document:** *AAVF Working Paper v1.0*  
+**Author:** Roshaan Ahmed Khan  
+**Status:** Preliminary, unreviewed working paper.
 
-## Experimental extension (not part of reported manuscript results)
+[Read the PDF manuscript](manuscript/AAVF_Working_Paper_v1.0_Roshaan_Ahmed_Khan.pdf)
 
-Researcher: **Roshaan Ahmed Khan**, BS Artificial Intelligence (BSAI), Sindh Madressatul Islam University, Pakistan.
+Do not describe this version as a peer-reviewed paper, a verified original method, or an LLM-agent benchmark. A comparison with relevant 2025–2026 literature remains outstanding; see `docs/2025_2026_LITERATURE_AUDIT_TEMPLATE.csv`.
 
-An optional **real language-model action-selection harness** is added in `src/llm_agent_eval.py`, with `src/hf_backend.py` as an on-device model adapter, `run_llm_experiment.py` as the runner, and `notebooks/02_real_llm_colab.ipynb` as an execution guide. The model chooses tool actions and their parameters; the AAVF policy guards tool results. A small scripted stub is used only for offline tests. **No real LLM evaluation has been run or incorporated into the numerical results in this repository.** Read `docs/LLM_RESEARCH_EXTENSION.md` for the proposed protocol and benchmark limitations.
+## Roadmap
 
-## Public working paper and publishing guide
+- [x] Implement four verification-policy simulations
+- [x] Record 1,600 reproducible scenarios and results
+- [x] Add automated simulator and harness tests
+- [x] Write preliminary working paper
+- [ ] Complete current related-work and novelty audit
+- [ ] Run genuine LLM action-selection experiments and inspect traces
+- [ ] Adapt a suitable public benchmark under a clearly documented protocol
+- [ ] Add failure-distribution sensitivity tests and less idealized verification
+- [ ] Revise manuscript using validated new results
 
-- PDF: `manuscript/AAVF_Working_Paper_v1.0_Roshaan_Ahmed_Khan.pdf`
-- Instructions: `docs/GITHUB_RESEARCHGATE_LINKEDIN_GUIDE.md`
-- LinkedIn post: `docs/LINKEDIN_POST.md`
-- ResearchGate copy: `docs/RESEARCHGATE_SUMMARY.md`
-- Release status: `docs/PUBLIC_RELEASE_STATUS.md`
+## Transparency, citation, and license
 
-Open-source licensing is **not yet selected**. See the optional MIT license template and choose before describing this public repository as open source.
+This project is a **research prototype**. It does not establish production safety or generalize automatically to larger agents or complex real applications. Code and manuscript drafting received AI assistance; experimental claims should be independently checked by the researcher. Full study limitations are described in the working paper and `docs/RESEARCH_SCOPE.md`.
+
+Citation metadata is provided in [`CITATION.cff`](CITATION.cff). Please cite the **working-paper version** appropriately until a formally reviewed publication exists.
+
+**License:** No open-source license has yet been selected for this repository. An optional MIT license template is included in the release package. A public repository is not automatically open source: add a reviewed `LICENSE` file before granting reuse permissions. Manuscript rights may be different from code rights.
+
+---
+
+**Feedback and collaboration:** Issues and research suggestions are welcome once the repository is public. Please reference the relevant simulation scenario or result when reporting problems.
